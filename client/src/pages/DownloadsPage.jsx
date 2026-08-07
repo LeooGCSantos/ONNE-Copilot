@@ -1,14 +1,53 @@
 import { useEffect, useState } from "react";
+import {
+  Package,
+  Download,
+  Globe,
+  Shield,
+  FileText,
+  Monitor,
+  Trash2,
+  Archive,
+} from "lucide-react";
+import PageHeader from "../components/ui/PageHeader";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import EmptyState from "../components/ui/EmptyState";
+import { SkeletonCard } from "../components/ui/Skeleton";
+import { useToast } from "../components/ui/Toast";
+
+function getIcon(nome) {
+  const key = nome.toLowerCase();
+  if (key.includes("anydesk") || key.includes("remote")) return Monitor;
+  if (key.includes("chrome") || key.includes("firefox")) return Globe;
+  if (key.includes("acrobat") || key.includes("adobe")) return FileText;
+  if (key.includes("forti") || key.includes("vpn")) return Shield;
+  if (key.includes("ccleaner") || key.includes("clean")) return Trash2;
+  if (key.includes("zip") || key.includes("7-zip")) return Archive;
+  return Package;
+}
 
 export default function DownloadsPage() {
   const [downloads, setDownloads] = useState([]);
   const [busca, setBusca] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/downloads")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Falha ao carregar downloads");
+        return res.json();
+      })
       .then((data) => setDownloads(data))
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+        toast("Não foi possível carregar os downloads.", "error");
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const downloadsFiltrados = downloads.filter((arquivo) =>
@@ -17,60 +56,87 @@ export default function DownloadsPage() {
 
   return (
     <div>
-      <h1 className="text-4xl font-bold mb-2">
-        Downloads
-      </h1>
+      <PageHeader
+        title="Downloads"
+        description="Programas utilizados pela equipe."
+      />
 
-      <p className="text-slate-500 mb-6">
-        Programas utilizados pela equipe.
-      </p>
-
-      <input
-        type="text"
+      <Input
+        icon={Download}
         placeholder="Pesquisar programa..."
         value={busca}
         onChange={(e) => setBusca(e.target.value)}
-        className="w-full p-3 mb-6 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="mb-6"
       />
 
-      <p className="mb-4">
-        Total de arquivos: <strong>{downloadsFiltrados.length}</strong>
-      </p>
+      {!loading && !error && (
+        <p className="mb-4 text-sm text-[var(--text-secondary)]">
+          Total de arquivos:{" "}
+          <strong className="text-[var(--text-primary)]">
+            {downloadsFiltrados.length}
+          </strong>
+        </p>
+      )}
 
-      <div className="space-y-4">
-        {downloadsFiltrados.map((arquivo, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 p-5 flex justify-between items-center"
-          >
-            <div className="flex items-center gap-4">
+      {loading && (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      )}
 
-              <div className="w-12 h-12 flex items-center justify-center text-3xl">
-                📦
-              </div>
+      {error && !loading && (
+        <EmptyState
+          icon={Package}
+          title="Erro ao carregar downloads"
+          description="Verifique se o servidor está em execução e tente novamente."
+        />
+      )}
 
-              <div>
-                <h2 className="font-semibold text-lg">
-                  {arquivo.nome}
-                </h2>
+      {!loading && !error && downloadsFiltrados.length === 0 && (
+        <EmptyState
+          icon={Package}
+          title="Nenhum programa encontrado"
+          description={
+            busca
+              ? "Tente ajustar os termos da pesquisa."
+              : "Não há programas disponíveis no momento."
+          }
+        />
+      )}
 
-                <p className="text-gray-500 text-sm">
-                  Programa disponível para download
-                </p>
-              </div>
-            </div>
-
-            <a
-              href={arquivo.url}
-              target="_blank"
-              rel="noreferrer"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-semibold transition"
-            >
-              Baixar
-            </a>
-          </div>
-        ))}
-      </div>
+      {!loading && !error && downloadsFiltrados.length > 0 && (
+        <div className="space-y-3">
+          {downloadsFiltrados.map((arquivo, index) => {
+            const Icon = getIcon(arquivo.nome);
+            return (
+              <Card key={index} hoverable className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-active)]">
+                    <Icon size={22} className="text-[var(--text-secondary)]" />
+                  </div>
+                  <div>
+                    <h2 className="font-medium text-[var(--text-primary)]">
+                      {arquivo.nome}
+                    </h2>
+                    <p className="text-sm text-[var(--text-muted)]">
+                      Programa disponível para download
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href={arquivo.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Button>Baixar</Button>
+                </a>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

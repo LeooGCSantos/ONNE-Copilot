@@ -1,13 +1,19 @@
+import { BarChart3 } from "lucide-react";
+import PageHeader from "../components/ui/PageHeader";
+import EmptyState from "../components/ui/EmptyState";
+
 export default function RelatoriosPage() {
   return (
-    <>
-      <h1 className="text-4xl font-bold">
-        Relatórios
-      </h1>
-
-      <p className="text-slate-500 mt-2">
-        Métricas do sistema.
-      </p>
-    </>
+    <div>
+      <PageHeader
+        title="Relatórios"
+        description="Métricas e indicadores do sistema."
+      />
+      <EmptyState
+        icon={BarChart3}
+        title="Relatórios em desenvolvimento"
+        description="Métricas do sistema aparecerão aqui."
+      />
+    </div>
   );
 }

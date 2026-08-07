@@ -1,13 +1,19 @@
+import { Bot } from "lucide-react";
+import PageHeader from "../components/ui/PageHeader";
+import EmptyState from "../components/ui/EmptyState";
+
 export default function IAPage() {
   return (
-    <>
-      <h1 className="text-4xl font-bold">
-        IA
-      </h1>
-
-      <p className="text-slate-500 mt-2">
-        Aqui será a inteligência do ONNE Copilot.
-      </p>
-    </>
+    <div>
+      <PageHeader
+        title="IA"
+        description="Inteligência artificial do ONNE Copilot."
+      />
+      <EmptyState
+        icon={Bot}
+        title="IA em desenvolvimento"
+        description="Aqui será a inteligência do ONNE Copilot."
+      />
+    </div>
   );
 }

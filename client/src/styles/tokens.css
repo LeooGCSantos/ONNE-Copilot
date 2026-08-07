@@ -1,0 +1,25 @@
+:root {
+  --bg-base: #0d0d0f;
+  --bg-surface: #111113;
+  --bg-elevated: #18181b;
+  --bg-hover: #1b1b1d;
+  --bg-active: #232326;
+
+  --border-subtle: #232326;
+  --border-default: #2a2a2d;
+
+  --text-primary: #ededed;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+
+  --sidebar-width: 240px;
+  --topbar-height: 48px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+
+  --transition-fast: 150ms ease;
+}
